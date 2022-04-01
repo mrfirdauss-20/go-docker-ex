@@ -143,7 +143,8 @@ PUT /games/7bb9cd49-bff1-45f3-982d-e533c8336989/answer
 Content-Type: application/json
 
 {
-    "answer_idx": 1
+    "answer_idx": 1,
+    "sent_at": 1648814458
 }
 ```
 
@@ -160,8 +161,11 @@ Content-Type: application/json
         "data": {
             "game_id": "7bb9cd49-bff1-45f3-982d-e533c8336989",
             "scenario": "NEW_QUESTION",
+            "answer_idx": 1,
+            "correct_idx": 1,
+            "timeout_at": 1648814463,
+            "sent_at": 1648814458,
             "score": 20,
-            "correct_idx": 1
         },
         "ts": 1648814458
     }
@@ -178,8 +182,11 @@ Content-Type: application/json
         "data": {
             "game_id": "7bb9cd49-bff1-45f3-982d-e533c8336989",
             "scenario": "GAME_OVER",
-            "score": 0,
-            "correct_idx": 2
+            "answer_idx": 1,
+            "correct_idx": 2,
+            "timeout_at": 1648814463,
+            "sent_at": 1648814458,
+            "score": 0
         },
         "ts": 1648814458
     }
