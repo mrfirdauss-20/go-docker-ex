@@ -51,13 +51,13 @@ func (i SubmitAnswerInput) Validate() error {
 }
 
 type SubmitAnswerOutput struct {
-	GameID     string `json:"game_id"`
-	Scenario   string `json:"scenario"`
-	AnswerIdx  int    `json:"answer_idx"`
-	CorrectIdx int    `json:"correct_idx"`
-	Duration   int    `json:"duration"`
-	Timeout    int    `json:"timeout"`
-	Score      int    `json:"score"`
+	GameID       string `json:"game_id"`
+	Scenario     string `json:"scenario"`
+	AnswerIndex  int    `json:"answer_idx"`
+	CorrectIndex int    `json:"correct_idx"`
+	Duration     int    `json:"duration"`
+	Timeout      int    `json:"timeout"`
+	Score        int    `json:"score"`
 }
 
 type Game struct {
@@ -70,10 +70,9 @@ type Game struct {
 }
 
 type Question struct {
-	QuestionID string
-	Problem    string
-	Choices    []string
-	CorrectIdx int
+	Problem      string   `json:"problem"`
+	Choices      []string `json:"choices"`
+	CorrectIndex int      `json:"correct_idx"`
 }
 
 type TimedQuestion struct {

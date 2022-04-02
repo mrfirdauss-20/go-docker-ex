@@ -145,7 +145,7 @@ func (s *service) SubmitAnswer(ctx context.Context, input SubmitAnswerInput) (*S
 	// check if it is already timeout or answer is incorrect
 	duration := int(input.SentAt - input.StartAt)
 	isTimeout := duration >= game.CurrentQuestion.Timeout
-	isIncorrect := input.AnswerIdx != game.CurrentQuestion.CorrectIdx
+	isIncorrect := input.AnswerIdx != game.CurrentQuestion.CorrectIndex
 	if isTimeout || isIncorrect {
 		game.Scenario = ScenarioGameOver
 	} else {
@@ -160,13 +160,13 @@ func (s *service) SubmitAnswer(ctx context.Context, input SubmitAnswerInput) (*S
 	}
 	// prepare output
 	output := &SubmitAnswerOutput{
-		GameID:     game.GameID,
-		Scenario:   game.Scenario,
-		AnswerIdx:  input.AnswerIdx,
-		CorrectIdx: game.CurrentQuestion.CorrectIdx,
-		Duration:   duration,
-		Timeout:    game.CurrentQuestion.Timeout,
-		Score:      game.Score,
+		GameID:       game.GameID,
+		Scenario:     game.Scenario,
+		AnswerIndex:  input.AnswerIdx,
+		CorrectIndex: game.CurrentQuestion.CorrectIndex,
+		Duration:     duration,
+		Timeout:      game.CurrentQuestion.Timeout,
+		Score:        game.Score,
 	}
 	return output, nil
 }

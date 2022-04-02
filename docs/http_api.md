@@ -1,5 +1,9 @@
 # HTTP API
 
+This document contains design for HTTP API used in this system.
+
+Everytime client want to call this API, it need to embed `X-API-Key: c4211664-47dc-4887-a2fe-9e694fbaf55a` in request header.
+
 ## New Game
 
 POST: `/games`
