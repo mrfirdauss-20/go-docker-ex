@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex MathRush</title>
+    <link rel="stylesheet" href="bulma.min.css">
+    <style>
+        html, body, 
+        .game-screen, 
+        .game-screen > .container, 
+        .game-screen > .container > .columns {
+            height: 100%;
+        }
+
+        .game-screen > .container > .columns {
+            align-items: center;
+        }
+
+        #question{
+            font-size: 3.5rem;
+            margin-top: 90px;
+            margin-bottom: 90px;
+        }
+
+        #score {
+            font-size: 1.2rem;
+        }
+
+        #game-content {
+            margin-top: -100px;
+        }
+
+        #game-title {
+            font-size: 3.5rem;
+        }
+    </style>
+</head>
+<body>
+    <section class="section game-screen">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-4" style="margin-top:-10%">
+                    <p id="game-title" class="has-text-centered">MathRush</p>
+                    <br>
+                    <button class="button is-info is-fullwidth is-large">Play</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section game-screen">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-4" style="margin-top:-10%">
+                    <p id="score" class="has-text-right">Score: 100</p>
+                    <div id="question" class="has-text-centered block">
+                        1 + 2 = ?
+                    </div>
+                    <div id="choices" class="buttons are-large">
+                        <button class="button is-fullwidth is-info">1</button>
+                        <button class="button is-fullwidth is-info">2</button>
+                        <button class="button is-fullwidth is-info">3</button>
+                    </div>
+                    <progress class="progress is-primary" value="10" max="100"></progress>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section game-screen">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-4 has-text-centered" style="margin-top:-10%">
+                    <p id="game-title" class="has-text-centered">MathRush</p>
+                    <br><br><br>
+                    <p style="font-size: 3.5rem;">1 + 2 = 3</p>
+                    <br><br><br>
+                    <p>Your Last Score: 100</p>
+                    <br>
+                    <button class="button is-info is-fullwidth is-large">Play</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
