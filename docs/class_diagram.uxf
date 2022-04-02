@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>4</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>324</x>
+      <y>276</y>
+      <w>296</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;core.Service&gt;&gt;
+--
++NewGame(ctx: context.Context, input: core.NewGameInput): (*core.NewGameOutput, error)
++NewQuestion(ctx: context.Context, input: core.NewQuestionInput): (*core.NewQuestionOutput, error)
++SubmitAnswer(ctx: context.Context, input: core.SubmitAnswerInput): (*core.SubmitAnswerOutput, error)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>664</x>
+      <y>224</y>
+      <w>60</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>core.NewGameInput
+--
++PlayerName: string</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>664</x>
+      <y>252</y>
+      <w>120</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>core.NewGameOutput
+--
++GameID: string `json:"game_id"`
++PlayerName: string `json:"player_name"`
++Scenario: string `json:"scenario"`</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>664</x>
+      <y>292</y>
+      <w>76</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>core.NewQuestionInput
+--
++GameID: string</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>664</x>
+      <y>320</y>
+      <w>112</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>core.NewQuestionOutput
+--
++GameID: string `json:"game_id"`
++Scenario: string `json:"scenario"`
++Problem: string `json:"problem"`
++Choices: []string `json:"choices"`
++TimeoutAt: int64 `json:"timeout_at"`</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>196</x>
+      <y>252</y>
+      <w>80</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>core.SubmitAnswerInput
+--
++GameID: string
++AnswerIdx: int
++SentAt: int64</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>172</x>
+      <y>292</y>
+      <w>104</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>core.SubmitAnswerOutput
+--
++GameID: string `json:"game_id"`
++Scenario: string `json:"scenario"`
++AnswerIdx: int `json:"answer_idx"`
++CorrectIdx: int `json:"correct_idx"`
++TimeoutAt: int `json:"timeout_at"`
++SentAt: int64 `json:"sent_at"`
++Score: int `json:"score"`</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>96</x>
+      <y>472</y>
+      <w>100</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>core.Game
+--
++GameID: string
++Scenario: string
++Score: int
++CurrentQuestion: *core.Question</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>472</y>
+      <w>60</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>core.Question
+--
++QuestionID: string
++Problem: string
++Choices: []string
++CorrectIdx: int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>324</x>
+      <y>372</y>
+      <w>296</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>core.service
+--
+-gameStorage: core.GameStorage
+-questionStorage: core.QuestionStorage
+--
++NewGame(ctx: context.Context, input: core.NewGameInput): (*core.NewGameOutput, error)
++NewQuestion(ctx: context.Context, input: core.NewQuestionInput): (*core.NewQuestionOutput, error)
++SubmitAnswer(ctx: context.Context, input: core.SubmitAnswerInput): (*core.SubmitAnswerOutput, error)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>468</x>
+      <y>304</y>
+      <w>12</w>
+      <h>76</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;170.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>232</x>
+      <y>472</y>
+      <w>248</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;core.GameStorage&gt;&gt;
+--
++CreateGame(ctx: context.Context, playerName: string): (*core.Game, error)
++GetGame(ctx: context.Context, gameID: string): (*core.Game, error)
++SetQuestion(ctx: context.Context, gameID: string, q: core.Question): (*core.Game, error)
++IncreaseScore(ctx: context.Context, gameID: string, v: int): (*core.Game, error)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>496</x>
+      <y>472</y>
+      <w>192</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;core.QuestionStorage&gt;&gt;
+--
++GetRandomQuestion(ctx: context.Context): (*core.Question, error)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>352</x>
+      <y>412</y>
+      <w>12</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;150.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>588</x>
+      <y>412</y>
+      <w>12</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;150.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>56</x>
+      <y>488</y>
+      <w>48</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>192</x>
+      <y>488</y>
+      <w>48</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>496</x>
+      <y>560</y>
+      <w>192</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>queststrg.Storage
+--
+-questions: []core.Question
+--
++GetRandomQuestion(ctx: context.Context): (*core.Question, error)
+_+New(cfg: queststrg.Config): (*queststrg.Storage, error)_</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>588</x>
+      <y>488</y>
+      <w>12</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;180.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>728</x>
+      <y>564</y>
+      <w>84</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>queststrg.Config
+--
++Questions: []core.Question</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>684</x>
+      <y>572</y>
+      <w>52</w>
+      <h>12</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>110.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>232</x>
+      <y>560</y>
+      <w>248</w>
+      <h>52</h>
+    </coordinates>
+    <panel_attributes>gamestrg.Storage
+--
+-gameMap: map[string]core.Game
+--
++CreateGame(ctx: context.Context, playerName: string): (*core.Game, error)
++GetGame(ctx: context.Context, gameID: string): (*core.Game, error)
++SetQuestion(ctx: context.Context, gameID: string, q: core.Question): (*core.Game, error)
++IncreaseScore(ctx: context.Context, gameID: string, v: int): (*core.Game, error)
+_+New(): *gamestrg.Storage_</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>352</x>
+      <y>504</y>
+      <w>12</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>272</x>
+      <y>264</y>
+      <w>60</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;130.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>272</x>
+      <y>288</y>
+      <w>60</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;80.0;130.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>616</x>
+      <y>232</y>
+      <w>56</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>120.0;10.0;10.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>616</x>
+      <y>264</y>
+      <w>56</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>120.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>616</x>
+      <y>288</y>
+      <w>56</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>120.0;40.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>616</x>
+      <y>288</y>
+      <w>56</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>120.0;140.0;10.0;10.0</additional_attributes>
+  </element>
+</diagram>
