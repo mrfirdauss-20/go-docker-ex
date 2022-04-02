@@ -2,6 +2,8 @@ package queststrg
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/ghazlabs/hex-mathrush/internal/core"
 	"gopkg.in/validator.v2"
@@ -28,6 +30,8 @@ func New(cfg Config) (*Storage, error) {
 }
 
 func (s *Storage) GetRandomQuestion(ctx context.Context) (*core.Question, error) {
-	// TODO
-	return nil, nil
+	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
+	idx := r.Intn(len(s.questions))
+
+	return &s.questions[idx], nil
 }
