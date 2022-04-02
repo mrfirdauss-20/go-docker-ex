@@ -5,7 +5,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>324</x>
-      <y>276</y>
+      <y>416</y>
       <w>296</w>
       <h>32</h>
     </coordinates>
@@ -20,7 +20,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>664</x>
-      <y>224</y>
+      <y>364</y>
       <w>60</w>
       <h>20</h>
     </coordinates>
@@ -33,7 +33,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>664</x>
-      <y>252</y>
+      <y>392</y>
       <w>120</w>
       <h>32</h>
     </coordinates>
@@ -48,7 +48,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>664</x>
-      <y>292</y>
+      <y>432</y>
       <w>76</w>
       <h>20</h>
     </coordinates>
@@ -61,7 +61,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>664</x>
-      <y>320</y>
+      <y>460</y>
       <w>112</w>
       <h>44</h>
     </coordinates>
@@ -78,7 +78,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>196</x>
-      <y>252</y>
+      <y>392</y>
       <w>80</w>
       <h>32</h>
     </coordinates>
@@ -93,7 +93,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>172</x>
-      <y>292</y>
+      <y>432</y>
       <w>104</w>
       <h>56</h>
     </coordinates>
@@ -112,7 +112,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>96</x>
-      <y>472</y>
+      <y>612</y>
       <w>100</w>
       <h>36</h>
     </coordinates>
@@ -128,7 +128,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>0</x>
-      <y>472</y>
+      <y>612</y>
       <w>60</w>
       <h>36</h>
     </coordinates>
@@ -144,7 +144,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>324</x>
-      <y>372</y>
+      <y>512</y>
       <w>296</w>
       <h>44</h>
     </coordinates>
@@ -162,7 +162,7 @@
     <id>Relation</id>
     <coordinates>
       <x>468</x>
-      <y>304</y>
+      <y>444</y>
       <w>12</w>
       <h>76</h>
     </coordinates>
@@ -173,7 +173,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>232</x>
-      <y>472</y>
+      <y>612</y>
       <w>248</w>
       <h>36</h>
     </coordinates>
@@ -189,7 +189,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>496</x>
-      <y>472</y>
+      <y>612</y>
       <w>192</w>
       <h>20</h>
     </coordinates>
@@ -202,7 +202,7 @@
     <id>Relation</id>
     <coordinates>
       <x>352</x>
-      <y>412</y>
+      <y>552</y>
       <w>12</w>
       <h>68</h>
     </coordinates>
@@ -213,7 +213,7 @@
     <id>Relation</id>
     <coordinates>
       <x>588</x>
-      <y>412</y>
+      <y>552</y>
       <w>12</w>
       <h>68</h>
     </coordinates>
@@ -224,7 +224,7 @@
     <id>Relation</id>
     <coordinates>
       <x>56</x>
-      <y>488</y>
+      <y>628</y>
       <w>48</w>
       <h>12</h>
     </coordinates>
@@ -235,7 +235,7 @@
     <id>Relation</id>
     <coordinates>
       <x>192</x>
-      <y>488</y>
+      <y>628</y>
       <w>48</w>
       <h>12</h>
     </coordinates>
@@ -246,7 +246,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>496</x>
-      <y>560</y>
+      <y>700</y>
       <w>192</w>
       <h>32</h>
     </coordinates>
@@ -262,7 +262,7 @@ _+New(cfg: queststrg.Config): (*queststrg.Storage, error)_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>588</x>
-      <y>488</y>
+      <y>628</y>
       <w>12</w>
       <h>80</h>
     </coordinates>
@@ -273,7 +273,7 @@ _+New(cfg: queststrg.Config): (*queststrg.Storage, error)_</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>728</x>
-      <y>564</y>
+      <y>704</y>
       <w>84</w>
       <h>20</h>
     </coordinates>
@@ -286,7 +286,7 @@ _+New(cfg: queststrg.Config): (*queststrg.Storage, error)_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>684</x>
-      <y>572</y>
+      <y>712</y>
       <w>52</w>
       <h>12</h>
     </coordinates>
@@ -297,7 +297,7 @@ _+New(cfg: queststrg.Config): (*queststrg.Storage, error)_</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>232</x>
-      <y>560</y>
+      <y>700</y>
       <w>248</w>
       <h>52</h>
     </coordinates>
@@ -316,7 +316,7 @@ _+New(): *gamestrg.Storage_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>352</x>
-      <y>504</y>
+      <y>644</y>
       <w>12</w>
       <h>64</h>
     </coordinates>
@@ -327,7 +327,7 @@ _+New(): *gamestrg.Storage_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>272</x>
-      <y>264</y>
+      <y>404</y>
       <w>60</w>
       <h>36</h>
     </coordinates>
@@ -338,7 +338,7 @@ _+New(): *gamestrg.Storage_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>272</x>
-      <y>288</y>
+      <y>428</y>
       <w>60</w>
       <h>40</h>
     </coordinates>
@@ -349,7 +349,7 @@ _+New(): *gamestrg.Storage_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>616</x>
-      <y>232</y>
+      <y>372</y>
       <w>56</w>
       <h>68</h>
     </coordinates>
@@ -360,7 +360,7 @@ _+New(): *gamestrg.Storage_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>616</x>
-      <y>264</y>
+      <y>404</y>
       <w>56</w>
       <h>36</h>
     </coordinates>
@@ -371,7 +371,7 @@ _+New(): *gamestrg.Storage_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>616</x>
-      <y>288</y>
+      <y>428</y>
       <w>56</w>
       <h>24</h>
     </coordinates>
@@ -382,7 +382,7 @@ _+New(): *gamestrg.Storage_</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>616</x>
-      <y>288</y>
+      <y>428</y>
       <w>56</w>
       <h>64</h>
     </coordinates>
