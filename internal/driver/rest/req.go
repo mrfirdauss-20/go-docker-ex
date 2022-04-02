@@ -22,7 +22,7 @@ type submitAnswerReqBody struct {
 }
 
 func (rb *submitAnswerReqBody) Bind(r *http.Request) error {
-	if rb.SentAt <= rb.StartAt {
+	if rb.SentAt < rb.StartAt {
 		return fmt.Errorf("invalid value of `sent_at`")
 	}
 	return validator.Validate(rb)

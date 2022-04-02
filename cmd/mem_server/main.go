@@ -88,6 +88,7 @@ func main() {
 		server.Shutdown(context.Background())
 	}()
 	// run server
+	log.Printf("server is listening on :%v", listenPort)
 	err = server.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Printf("unable to run server due: %v", err)
