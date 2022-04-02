@@ -90,7 +90,7 @@ Content-Type: application/json
             "4",
             "5"
         ],
-        "timeout_at": 1648814463
+        "timeout": 5
     },
     "ts": 1648814458
 }
@@ -134,7 +134,8 @@ There are 2 next possible scenarios after successfully calling this endpoint:
 **Body Fields:**
 
 - `answer_idx`, Integer => answer index for the question, start from `1`, if user doesn't give any answer set the value to `0`.
-- `sent_at`, Integer => timestamp when the answer was sent, the value of this timestamp will be used to determine whether or not user submit the answer during or after timeout.
+- `start_at`, Integer => unix timestamp in seconds when client start displaying the question.
+- `sent_at`, Integer => unix timestamp in seconds when the answer was sent, the value of this timestamp will be used to determine whether or not user submit the answer during or after timeout.
 
 **Example Request:**
 
@@ -144,6 +145,7 @@ Content-Type: application/json
 
 {
     "answer_idx": 1,
+    "start_at": 1648814453,
     "sent_at": 1648814458
 }
 ```
@@ -163,8 +165,8 @@ Content-Type: application/json
             "scenario": "NEW_QUESTION",
             "answer_idx": 1,
             "correct_idx": 1,
-            "timeout_at": 1648814463,
-            "sent_at": 1648814458,
+            "duration": 4, // the duration of user answering question, calculated from sent_at - start_at
+            "timeout": 5, // the timeout duration given by server
             "score": 20,
         },
         "ts": 1648814458
@@ -184,8 +186,8 @@ Content-Type: application/json
             "scenario": "GAME_OVER",
             "answer_idx": 1,
             "correct_idx": 2,
-            "timeout_at": 1648814463,
-            "sent_at": 1648814458,
+            "duration": 4,
+            "timeout": 5,
             "score": 0
         },
         "ts": 1648814458
