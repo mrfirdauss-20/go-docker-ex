@@ -24,7 +24,7 @@
                             </div>
                             <div class="field">
                                 <div class="control">
-                                    <button class="button is-info is-fullwidth is-large" @click="play()">Play</button>
+                                    <button class="button is-info is-fullwidth is-large" @click.prevent="play()">Play</button>
                                 </div>
                             </div>
                         </form>
@@ -43,7 +43,7 @@
                         <div id="choices" class="buttons are-large">
                             <button class="button is-fullwidth is-info" v-for="(choice, idx) in choices" @click="submitAnswer(idx)">{{ choice }}</button>
                         </div>
-                        <progress class="progress is-primary" value="10" max="100"></progress>
+                        <progress class="progress is-primary" v-bind:value="duration" v-bind:max="timeout"></progress>
                     </div>
                 </div>
             </div>
