@@ -1,0 +1,28 @@
+html, body, #app,
+.game-screen, 
+.game-screen > .container, 
+.game-screen > .container > .columns {
+    height: 100%;
+}
+
+.game-screen > .container > .columns {
+    align-items: center;
+}
+
+#question{
+    font-size: 3.5rem;
+    margin-top: 90px;
+    margin-bottom: 90px;
+}
+
+#score {
+    font-size: 1.2rem;
+}
+
+#game-content {
+    margin-top: -100px;
+}
+
+#game-title {
+    font-size: 3.5rem;
+}
