@@ -42,10 +42,13 @@ func (a *API) GetHandler() http.Handler {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Use(a.validateAPIKey)
-	r.Use(render.SetContentType(render.ContentTypeJSON))
 
+	r.Get("/", a.serveWeb)
+	r.Get("/assets/*", a.serveAssets)
 	r.Route("/games", func(r chi.Router) {
+		r.Use(a.validateAPIKey)
+		r.Use(render.SetContentType(render.ContentTypeJSON))
+
 		r.Post("/", a.serveNewGame)
 		r.Route("/{game_id}", func(r chi.Router) {
 			r.Put("/question", a.serveNewQuestion)
@@ -54,6 +57,16 @@ func (a *API) GetHandler() http.Handler {
 	})
 
 	return r
+}
+
+func (a *API) serveWeb(w http.ResponseWriter, r *http.Request) {
+	fs := http.FileServer(http.Dir("./web"))
+	fs.ServeHTTP(w, r)
+}
+
+func (a *API) serveAssets(w http.ResponseWriter, r *http.Request) {
+	fs := http.StripPrefix("/assets/", http.FileServer(http.Dir("./web/assets")))
+	fs.ServeHTTP(w, r)
 }
 
 func (a *API) serveNewGame(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex MathRush</title>
+    <link rel="stylesheet" href="./assets/css/bulma.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <section class="section game-screen" v-if="scenario == 'NEW_GAME'">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-4" style="margin-top:-10%">
+                        <p id="game-title" class="has-text-centered">MathRush</p>
+                        <br>
+                        <form class="form" action="#">
+                            <div class="field">
+                                <div class="control">
+                                    <input type="text" v-model="player_name" class="input is-large" placeholder="Enter your name here..." required>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <button class="button is-info is-fullwidth is-large" @click.prevent="play()">Play</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section game-screen" v-if="scenario == 'SUBMIT_ANSWER'">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-4" style="margin-top:-10%">
+                        <p id="score" class="has-text-right">Score: {{ score }}</p>
+                        <div id="question" class="has-text-centered block">
+                            {{ question }} = ?
+                        </div>
+                        <div id="choices" class="buttons are-large">
+                            <button class="button is-fullwidth is-info" v-for="(choice, idx) in choices" @click="submitAnswer(idx)">{{ choice }}</button>
+                        </div>
+                        <progress class="progress is-primary" v-bind:value="duration" v-bind:max="max_duration"></progress>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section game-screen" v-if="scenario == 'GAME_OVER'">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-4 has-text-centered" style="margin-top:-10%">
+                        <p class="is-size-3">Game Over</p>
+                        <br><br><br>
+                        <p style="font-size: 3.5rem;">{{ question }} = {{ choices[correct_idx] }}</p>
+                        <br><br><br>
+                        <p>Your Score: {{ score }}</p>
+                        <br>
+                        <button class="button is-info is-fullwidth is-large" @click="play()">Play</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="./assets/js/vue.global.js"></script>
+    <script src="./assets/js/app.js"></script>
+</body>
+</html>
