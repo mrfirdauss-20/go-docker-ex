@@ -10,7 +10,7 @@
 </head>
 <body>
     <div id="app">
-        <section class="section game-screen" v-if="state == 'NEW_GAME'">
+        <section class="section game-screen" v-if="scenario == 'NEW_GAME'">
             <div class="container">
                 <div class="columns is-centered">
                     <div class="column is-4" style="margin-top:-10%">
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </section>
-        <section class="section game-screen" v-if="state == 'NEW_QUESTION'">
+        <section class="section game-screen" v-if="scenario == 'SUBMIT_ANSWER'">
             <div class="container">
                 <div class="columns is-centered">
                     <div class="column is-4" style="margin-top:-10%">
@@ -48,7 +48,7 @@
                 </div>
             </div>
         </section>
-        <section class="section game-screen" v-if="state == 'GAME_OVER'">
+        <section class="section game-screen" v-if="scenario == 'GAME_OVER'">
             <div class="container">
                 <div class="columns is-centered">
                     <div class="column is-4 has-text-centered" style="margin-top:-10%">
