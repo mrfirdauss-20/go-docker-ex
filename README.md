@@ -1,8 +1,10 @@
 # Hex MathRush
 
-MathRush is simple math game which greatly inspired by [this game](https://apps.apple.com/sa/app/1-2-3/id953831664). It is intended to be used as reference for building system in Ghazlabs.
+MathRush is simple math game which greatly inspired by [this game](https://apps.apple.com/sa/app/1-2-3/id953831664).
 
-The architectural pattern used for building the backend is called [Hexagonal Architecture](https://medium.com/@matiasvarela/hexagonal-architecture-in-go-cfd4e436faa3). Hence the name `Hex MathRush`.
+It is build using client & server architecture. The client communicate with server using REST API defined in [http_api.md](./docs/http_api.md).
+
+It is intended for showcasing implementation of [Hexagonal Architecture](https://medium.com/@matiasvarela/hexagonal-architecture-in-go-cfd4e436faa3). Hence the name `Hex MathRush`.
 
 ## Game Flow
 

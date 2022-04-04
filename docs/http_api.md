@@ -128,7 +128,7 @@ PUT: `/games/{game_id}/answer`
 
 This endpoint is used for sending answer from client.
 
-Notice that even though user don't answer anything the answer need to be sent, otherwise the game will stale. From the backend perspective this is pretty much okay, but from user perspective the stale game will resulted in user score doesn't submitted to leaderboard.
+Notice that even though user don't submit any answer, this endpoint still need to be called, otherwise the game will stale. From the backend perspective this is pretty much okay, but if in the future if we decided to add leaderboard to this game, the staled game will resulted in user score doesn't submitted to leaderboard. So it's better to always call this endpoint whether user submitting answer or not.
 
 There are 2 next possible scenarios after successfully calling this endpoint:
 
