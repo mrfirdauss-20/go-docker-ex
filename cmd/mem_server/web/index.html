@@ -43,7 +43,7 @@
                         <div id="choices" class="buttons are-large">
                             <button class="button is-fullwidth is-info" v-for="(choice, idx) in choices" @click="submitAnswer(idx)">{{ choice }}</button>
                         </div>
-                        <progress class="progress is-primary" v-bind:value="duration" v-bind:max="timeout"></progress>
+                        <progress class="progress is-primary" v-bind:value="duration" v-bind:max="max_duration"></progress>
                     </div>
                 </div>
             </div>

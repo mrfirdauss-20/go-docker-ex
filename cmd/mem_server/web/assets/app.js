@@ -6,8 +6,8 @@ Vue.createApp({
             question: "1 + 2",
             choices: ["1", "2", "3"],
             score: 0,
-            timeout: 1000, // 5 seconds
-            duration: 1000, // 5 seconds
+            max_duration: 0,
+            duration: 0,
             correct_idx: 2,
             questInterval: null
         }
@@ -15,18 +15,30 @@ Vue.createApp({
     methods: {
         play() {
             this.state = "NEW_QUESTION"
-            this.timeout = 1000;
-            this.duration = 1000;
+            this.startTimer(5, () => {
+                this.submitAnswer(0);
+            });
+        },
+        async submitAnswer(idx) {
+            this.stopTimer();
+            this.state = "GAME_OVER";
+        },
+        startTimer(seconds, timeoutCallback) {
+            // set current duration & max duration
+            this.max_duration = seconds * 200; // the multiplier is 200 to make the animation smooth
+            this.duration = this.max_duration;
+            // start timer animation
             this.questInterval = setInterval(() => {
-                this.duration-=1;
+                this.duration-=2;
                 if (this.duration === 0) {
-                    this.submitAnswer(-1);
+                    // execute callback
+                    timeoutCallback();
                 }
             }, 5)
         },
-        submitAnswer(idx) {
+        stopTimer() {
             clearTimeout(this.questInterval);
-            this.state = "GAME_OVER";
         }
+
     }
 }).mount('#app')
