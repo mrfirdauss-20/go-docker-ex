@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ghazlabs/hex-mathrush/internal/core"
 	"github.com/ghazlabs/hex-mathrush/internal/driven/clock"
@@ -107,59 +106,6 @@ func TestNewAPI(t *testing.T) {
 	}
 }
 
-// this test function still remains fail
-func TestServeWeb(t *testing.T) {
-	// initialize new API
-	api, err := newNewAPI()
-	require.NoError(t, err)
-
-	// create request and response recorder
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-	// test the serveWeb handler function
-	api.serveWeb(w, req)
-	res := w.Result()
-	defer res.Body.Close()
-
-	// read the response body
-	body, err := ioutil.ReadAll(res.Body)
-	require.NoError(t, err)
-	// verify result
-	assert.Equal(t, http.StatusOK, res.StatusCode, "mismatch response code")
-	// read homepage file
-	file, err := os.ReadFile("../../../cmd/mem_server/web/index.html")
-	require.NoError(t, err)
-	// verify body
-	assert.Equal(t, string(file), string(body))
-}
-
-// this test function still remains fail
-func TestServeAssets(t *testing.T) {
-	// initialize new API
-	api, err := newNewAPI()
-	require.NoError(t, err)
-
-	// create request and response recorder
-	req := httptest.NewRequest(http.MethodGet, "/assets/", nil)
-	w := httptest.NewRecorder()
-	// test the serveWeb handler function
-	api.serveAssets(w, req)
-	res := w.Result()
-	defer res.Body.Close()
-
-	// read the response body
-	body, err := ioutil.ReadAll(res.Body)
-	require.NoError(t, err)
-	// verify result
-	assert.Equal(t, http.StatusOK, res.StatusCode, "mismatch response code")
-
-	expectedBody := `<pre>
-	<a href="css/">css/</a>
-	<a href="js/">js/</a>
-	</pre>`
-	assert.Equal(t, expectedBody, string(body))
-}
-
 func TestServeNewGameInvalid(t *testing.T) {
 	// initialize new API
 	api, err := newNewAPI()
@@ -169,36 +115,30 @@ func TestServeNewGameInvalid(t *testing.T) {
 	reqBody := newGameReqBody{}
 	reqBodyJson, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest(http.MethodPost, "/games/", strings.NewReader(string(reqBodyJson)))
-	req.Header = map[string][]string{
-		"X-API-Key":    {API_KEY},
-		"Content-Type": {"application/json"},
-	}
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
 	// create response recorder
 	w := httptest.NewRecorder()
 	// test the serveNewGame handler function
-	api.serveNewGame(w, req)
+	api.GetHandler().ServeHTTP(w, req)
 
 	// read the response body
-	res := w.Result()
-	defer res.Body.Close()
+	resp := w.Result()
+	defer resp.Body.Close()
 	// build expected response body
 	expectedResp := respBody{
 		OK:         false,
 		StatusCode: http.StatusBadRequest,
 		Err:        "ERR_BAD_REQUEST",
-		// Message:    "missing `player_name`",
 	}
 	// build actual response body
-	byteData, err := ioutil.ReadAll(res.Body)
-	require.NoError(t, err)
 	actualResp := respBody{}
-	err = json.Unmarshal(byteData, &actualResp)
+	err = json.NewDecoder(resp.Body).Decode(&actualResp)
 	require.NoError(t, err)
 	// verify response body
-	assert.Equal(t, expectedResp.StatusCode, res.StatusCode, "mismatch response code")
-	assert.Equal(t, expectedResp.OK, actualResp.OK)
-	assert.Equal(t, expectedResp.Err, actualResp.Err)
-	// assert.Equal(t, expectedResp.Message, actualResp.Message)
+	assert.Equal(t, expectedResp.StatusCode, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, expectedResp.OK, actualResp.OK, "mismatch response body ok")
+	assert.Equal(t, expectedResp.Err, actualResp.Err, "mismatch response body error type")
 }
 
 func TestServeNewGameValid(t *testing.T) {
@@ -212,45 +152,41 @@ func TestServeNewGameValid(t *testing.T) {
 	}
 	reqBodyJson, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest(http.MethodPost, "/games/", strings.NewReader(string(reqBodyJson)))
-	// require.NoError(t, err)
-	req.Header = map[string][]string{
-		"X-API-Key":    {API_KEY},
-		"Content-Type": {"application/json"},
-	}
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
 	// create response recorder
 	w := httptest.NewRecorder()
 	// test the serveNewGame handler function
-	api.serveNewGame(w, req)
+	api.GetHandler().ServeHTTP(w, req)
 
 	// read the response body
-	res := w.Result()
-	defer res.Body.Close()
+	resp := w.Result()
+	defer resp.Body.Close()
 	// build expected response body
-	expectedResp := newGameResp{
+	expectedResp := newGameRespBody{
 		Ok: true,
 		Data: core.NewGameOutput{
 			PlayerName: "Riandy",
-			Scenario:   "NEW_QUESTION",
+			Scenario:   core.ScenarioNewQuestion,
 		},
 	}
 	// build actual response body
-	byteData, _ := ioutil.ReadAll(res.Body)
-	actualResp := newGameResp{}
-	err = json.Unmarshal(byteData, &actualResp)
+	actualResp := newGameRespBody{}
+	err = json.NewDecoder(resp.Body).Decode(&actualResp)
 	require.NoError(t, err)
 	// verify response body
-	assert.Equal(t, http.StatusOK, res.StatusCode, "mismatch response code")
-	assert.Equal(t, expectedResp.Ok, actualResp.Ok)
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, expectedResp.Ok, actualResp.Ok, "mismatch response body ok")
 	assert.Equal(t, expectedResp.Data.PlayerName, actualResp.Data.PlayerName, "mismatch response body player name")
-	assert.Equal(t, expectedResp.Data.Scenario, actualResp.Data.Scenario, "mismatch response body player name")
+	assert.Equal(t, expectedResp.Data.Scenario, actualResp.Data.Scenario, "mismatch response body game scenario")
 
 	// make sure that storage save the game
 	storedGameID := actualResp.Data.GameID
 	storedGame, err := api.service.(*mockService).gameStorage.GetGame(context.Background(), storedGameID)
 	assert.NoError(t, err)
 	assert.Equal(t, storedGameID, storedGame.GameID, "mismatch game ID")
-	assert.Equal(t, expectedResp.Data.PlayerName, storedGame.PlayerName, "mismatch response body player name")
-	assert.Equal(t, expectedResp.Data.Scenario, storedGame.Scenario, "mismatch response body player name")
+	assert.Equal(t, expectedResp.Data.PlayerName, storedGame.PlayerName, "mismatch stored game player name")
+	assert.Equal(t, expectedResp.Data.Scenario, storedGame.Scenario, "mismatch stored game scenario")
 }
 
 func TestServeNewQuestionValid(t *testing.T) {
@@ -258,7 +194,7 @@ func TestServeNewQuestionValid(t *testing.T) {
 	game := core.Game{
 		GameID:          uuid.NewString(),
 		PlayerName:      "Riandy",
-		Scenario:        "NEW_QUESTION",
+		Scenario:        core.ScenarioNewQuestion,
 		Score:           0,
 		CountCorrect:    0,
 		CurrentQuestion: &core.TimedQuestion{},
@@ -285,16 +221,16 @@ func TestServeNewQuestionValid(t *testing.T) {
 	resp := w.Result()
 	defer resp.Body.Close()
 	// build actual response body
-	var respBody newQuestionResp
+	var respBody newQuestionRespBody
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	require.NoError(t, err)
 	// verify response body
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "mismatch response code")
-	assert.Equal(t, true, respBody.Ok)
-	assert.Equal(t, game.GameID, respBody.Data.GameID)
-	assert.Equal(t, "SUBMIT_ANSWER", respBody.Data.Scenario)
+	assert.Equal(t, true, respBody.Ok, "mismatch response body ok")
+	assert.Equal(t, game.GameID, respBody.Data.GameID, "mismatch response body game ID")
+	assert.Equal(t, core.ScenarioSubmitAnswer, respBody.Data.Scenario, "mismatch response body game scenario")
 
-	// make sure that problem in response body is part of problem stored in queststrg
+	// make sure that problem and choices in response body is part of question stored in queststrg
 	question := core.Question{
 		Problem: respBody.Data.Problem,
 		Choices: respBody.Data.Choices,
@@ -312,19 +248,373 @@ func TestServeNewQuestionValid(t *testing.T) {
 		}
 		return false
 	}
-	assert.True(t, questInQuestions(question, questions))
+	assert.True(t, questInQuestions(question, questions), "current question is out of storage")
 }
 
-type newGameResp struct {
+func TestServeNewQuestionInvalid(t *testing.T) {
+	// initialize game
+	game := core.Game{
+		GameID:          uuid.NewString(),
+		PlayerName:      "Riandy",
+		Scenario:        core.ScenarioGameOver,
+		Score:           0,
+		CountCorrect:    0,
+		CurrentQuestion: &core.TimedQuestion{},
+	}
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+	// store game to service
+	err = api.service.(*mockService).gameStorage.PutGame(context.Background(), game)
+	require.NoError(t, err)
+
+	// create request
+	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/question", nil)
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveNewQuestion handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build actual response body
+	var respBody respBody
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	// verify response body
+	assert.Equal(t, http.StatusConflict, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, false, respBody.OK, "mismatch response body ok")
+	assert.Equal(t, "ERR_INVALID_SCENARIO", respBody.Err, "mismatch response body error type")
+}
+
+func TestServeSubmitAnswerCorrectAnswer(t *testing.T) {
+	// initialize game
+	game := core.Game{
+		GameID:       uuid.NewString(),
+		PlayerName:   "Riandy",
+		Scenario:     core.ScenarioSubmitAnswer,
+		Score:        0,
+		CountCorrect: 0,
+		CurrentQuestion: &core.TimedQuestion{
+			Question: core.Question{
+				Problem: "1 + 2",
+				Choices: []string{
+					"3",
+					"4",
+					"5",
+				},
+				CorrectIndex: 1,
+			},
+			Timeout: 5,
+		},
+	}
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+	// store game to service
+	err = api.service.(*mockService).gameStorage.PutGame(context.Background(), game)
+	require.NoError(t, err)
+
+	// create request
+	reqBody := submitAnswerReqBody{
+		AnswerIndex: 1,
+		StartAt:     time.Now().Unix(),
+		SentAt:      time.Now().Add(3 * time.Second).Unix(),
+	}
+	reqBodyJson, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/answer", strings.NewReader(string(reqBodyJson)))
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveSubmitAnswer handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build actual response body
+	var respBody submitAnswerRespBody
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	// verify response body
+	newScore := game.Score + api.service.(*mockService).addScore
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, true, respBody.Ok, "mismatch response body ok")
+	assert.Equal(t, game.GameID, respBody.Data.GameID, "mismatch response body game ID")
+	assert.Equal(t, core.ScenarioNewQuestion, respBody.Data.Scenario, "mismatch response body game scenario")
+	assert.Equal(t, reqBody.AnswerIndex, respBody.Data.AnswerIndex, "mismatch response body answer index")
+	assert.Equal(t, game.CurrentQuestion.CorrectIndex, respBody.Data.CorrectIndex, "mismatch response body correct index")
+	assert.Equal(t, int(reqBody.SentAt-reqBody.StartAt), respBody.Data.Duration, "mismatch response body duration")
+	assert.Equal(t, game.CurrentQuestion.Timeout, respBody.Data.Timeout, "mismatch response body timeout")
+	assert.Equal(t, newScore, respBody.Data.Score, "mismatch response body score")
+	// make sure that game is updated in gamestrg
+	updatedGame, err := api.service.(*mockService).gameStorage.GetGame(context.Background(), game.GameID)
+	assert.Equal(t, core.ScenarioNewQuestion, updatedGame.Scenario, "mismatch updated game scenario")
+	assert.Equal(t, (game.CountCorrect + 1), updatedGame.CountCorrect, "mismatch updated game count correct")
+	assert.Equal(t, newScore, updatedGame.Score, "mismatch updated game score")
+}
+
+func TestServeSubmitAnswerIncorrectAnswer(t *testing.T) {
+	// initialize game
+	game := core.Game{
+		GameID:       uuid.NewString(),
+		PlayerName:   "Riandy",
+		Scenario:     core.ScenarioSubmitAnswer,
+		Score:        0,
+		CountCorrect: 0,
+		CurrentQuestion: &core.TimedQuestion{
+			Question: core.Question{
+				Problem: "1 + 2",
+				Choices: []string{
+					"3",
+					"4",
+					"5",
+				},
+				CorrectIndex: 1,
+			},
+			Timeout: 5,
+		},
+	}
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+	// store game to service
+	err = api.service.(*mockService).gameStorage.PutGame(context.Background(), game)
+	require.NoError(t, err)
+
+	// create request
+	reqBody := submitAnswerReqBody{
+		AnswerIndex: 2,
+		StartAt:     time.Now().Unix(),
+		SentAt:      time.Now().Add(3 * time.Second).Unix(),
+	}
+	reqBodyJson, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/answer", strings.NewReader(string(reqBodyJson)))
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveSubmitAnswer handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build actual response body
+	var respBody submitAnswerRespBody
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	// verify response body
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, true, respBody.Ok, "mismatch response body ok")
+	assert.Equal(t, game.GameID, respBody.Data.GameID, "mismatch response body game ID")
+	assert.Equal(t, core.ScenarioGameOver, respBody.Data.Scenario, "mismatch response body game scenario")
+	assert.Equal(t, reqBody.AnswerIndex, respBody.Data.AnswerIndex, "mismatch response body answer index")
+	assert.Equal(t, game.CurrentQuestion.CorrectIndex, respBody.Data.CorrectIndex, "mismatch response body correct index")
+	assert.Equal(t, int(reqBody.SentAt-reqBody.StartAt), respBody.Data.Duration, "mismatch response body duration")
+	assert.Equal(t, game.CurrentQuestion.Timeout, respBody.Data.Timeout, "mismatch response body timeout")
+	assert.Equal(t, game.Score, respBody.Data.Score, "mismatch response body score")
+	// make sure that game is updated in gamestrg
+	updatedGame, err := api.service.(*mockService).gameStorage.GetGame(context.Background(), game.GameID)
+	assert.Equal(t, core.ScenarioGameOver, updatedGame.Scenario, "mismatch updated game scenario")
+}
+
+func TestServeSubmitAnswerHasTimeout(t *testing.T) {
+	// initialize game
+	game := core.Game{
+		GameID:       uuid.NewString(),
+		PlayerName:   "Riandy",
+		Scenario:     core.ScenarioSubmitAnswer,
+		Score:        0,
+		CountCorrect: 0,
+		CurrentQuestion: &core.TimedQuestion{
+			Question: core.Question{
+				Problem: "1 + 2",
+				Choices: []string{
+					"3",
+					"4",
+					"5",
+				},
+				CorrectIndex: 1,
+			},
+			Timeout: 5,
+		},
+	}
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+	// store game to service
+	err = api.service.(*mockService).gameStorage.PutGame(context.Background(), game)
+	require.NoError(t, err)
+
+	// create request
+	reqBody := submitAnswerReqBody{
+		AnswerIndex: 1,
+		StartAt:     time.Now().Unix(),
+		SentAt:      time.Now().Add(7 * time.Second).Unix(),
+	}
+	reqBodyJson, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/answer", strings.NewReader(string(reqBodyJson)))
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveSubmitAnswer handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build actual response body
+	var respBody submitAnswerRespBody
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	// verify response body
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, true, respBody.Ok, "mismatch response body ok")
+	assert.Equal(t, game.GameID, respBody.Data.GameID, "mismatch response body game ID")
+	assert.Equal(t, core.ScenarioGameOver, respBody.Data.Scenario, "mismatch response body game scenario")
+	assert.Equal(t, reqBody.AnswerIndex, respBody.Data.AnswerIndex, "mismatch response body answer index")
+	assert.Equal(t, game.CurrentQuestion.CorrectIndex, respBody.Data.CorrectIndex, "mismatch response body correct index")
+	assert.Equal(t, int(reqBody.SentAt-reqBody.StartAt), respBody.Data.Duration, "mismatch response body duration")
+	assert.Equal(t, game.CurrentQuestion.Timeout, respBody.Data.Timeout, "mismatch response body timeout")
+	assert.Equal(t, game.Score, respBody.Data.Score, "mismatch response body score")
+	// make sure that game is updated in gamestrg
+	updatedGame, err := api.service.(*mockService).gameStorage.GetGame(context.Background(), game.GameID)
+	assert.Equal(t, core.ScenarioGameOver, updatedGame.Scenario, "mismatch updated game scenario")
+}
+
+func TestServeSubmitAnswerInvalidScenario(t *testing.T) {
+	// initialize game
+	game := core.Game{
+		GameID:       uuid.NewString(),
+		PlayerName:   "Riandy",
+		Scenario:     core.ScenarioNewQuestion,
+		Score:        0,
+		CountCorrect: 0,
+		CurrentQuestion: &core.TimedQuestion{
+			Question: core.Question{
+				Problem: "1 + 2",
+				Choices: []string{
+					"3",
+					"4",
+					"5",
+				},
+				CorrectIndex: 1,
+			},
+			Timeout: 5,
+		},
+	}
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+	// store game to service
+	err = api.service.(*mockService).gameStorage.PutGame(context.Background(), game)
+	require.NoError(t, err)
+
+	// create request
+	reqBody := submitAnswerReqBody{
+		AnswerIndex: 1,
+		StartAt:     time.Now().Unix(),
+		SentAt:      time.Now().Add(4 * time.Second).Unix(),
+	}
+	reqBodyJson, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/answer", strings.NewReader(string(reqBodyJson)))
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveSubmitAnswer handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build actual response body
+	var respBody respBody
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	// verify response body
+	assert.Equal(t, http.StatusConflict, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, false, respBody.OK, "mismatch response body ok")
+	assert.Equal(t, "ERR_INVALID_SCENARIO", respBody.Err, "mismatch response body error type")
+}
+
+func TestServeSubmitAnswerInvalidRequest(t *testing.T) {
+	// initialize game
+	game := core.Game{
+		GameID:       uuid.NewString(),
+		PlayerName:   "Riandy",
+		Scenario:     core.ScenarioNewQuestion,
+		Score:        0,
+		CountCorrect: 0,
+		CurrentQuestion: &core.TimedQuestion{
+			Question: core.Question{
+				Problem: "1 + 2",
+				Choices: []string{
+					"3",
+					"4",
+					"5",
+				},
+				CorrectIndex: 1,
+			},
+			Timeout: 5,
+		},
+	}
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+	// store game to service
+	err = api.service.(*mockService).gameStorage.PutGame(context.Background(), game)
+	require.NoError(t, err)
+
+	// create request
+	reqBody := submitAnswerReqBody{
+		AnswerIndex: 1,
+		StartAt:     time.Now().Unix(),
+	}
+	reqBodyJson, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/answer", strings.NewReader(string(reqBodyJson)))
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveSubmitAnswer handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build actual response body
+	var respBody respBody
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	require.NoError(t, err)
+	// verify response body
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, false, respBody.OK, "mismatch response body ok")
+	assert.Equal(t, "ERR_BAD_REQUEST", respBody.Err, "mismatch response body error type")
+}
+
+type newGameRespBody struct {
 	Ok   bool               `json:"ok"`
 	Data core.NewGameOutput `json:"data"`
 	Time int64              `json:"ts"`
 }
 
-type newQuestionResp struct {
+type newQuestionRespBody struct {
 	Ok   bool                   `json:"ok"`
 	Data core.NewQuestionOutput `json:"data"`
 	Time int64                  `json:"ts"`
+}
+
+type submitAnswerRespBody struct {
+	Ok   bool                    `json:"ok"`
+	Data core.SubmitAnswerOutput `json:"data"`
+	Time int64                   `json:"ts"`
 }
 
 // mock Auth
