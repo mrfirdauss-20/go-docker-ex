@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -273,37 +272,32 @@ func TestServeNewQuestionValid(t *testing.T) {
 
 	// create request
 	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/question", nil)
-	req.Header = map[string][]string{
-		"X-API-Key":    {API_KEY},
-		"Content-Type": {"application/json"},
-	}
-	log.Println(req)
+	// set headers, here we set them using `Set()` because it will normalize the header key value
+	req.Header.Set("X-API-Key", API_KEY)
+	req.Header.Set("Content-Type", "application/json")
 	// create response recorder
 	w := httptest.NewRecorder()
-	// test the serveNewGame handler function
-	api.serveNewQuestion(w, req)
+	// test the handler, here test the exported http handler because if we test the handler function
+	// directly, chi context would be missing which resulted in `chi.URLParams(r, key)` returns empty.
+	api.GetHandler().ServeHTTP(w, req)
 
 	// read the response body
-	res := w.Result()
-	defer res.Body.Close()
-	// build expected response ok status
-	expectedRespOk := true
+	resp := w.Result()
+	defer resp.Body.Close()
 	// build actual response body
-	byteData, _ := ioutil.ReadAll(res.Body)
-	log.Println(string(byteData))
-	actualResp := newQuestionResp{}
-	err = json.Unmarshal(byteData, &actualResp)
+	var respBody newQuestionResp
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	require.NoError(t, err)
 	// verify response body
-	assert.Equal(t, http.StatusOK, res.StatusCode, "mismatch response code")
-	assert.Equal(t, expectedRespOk, actualResp.Ok)
-	assert.Equal(t, game.GameID, actualResp.Data.GameID)
-	assert.Equal(t, "SUBMIT_ANSWER", actualResp.Data.Scenario)
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, true, respBody.Ok)
+	assert.Equal(t, game.GameID, respBody.Data.GameID)
+	assert.Equal(t, "SUBMIT_ANSWER", respBody.Data.Scenario)
 
 	// make sure that problem in response body is part of problem stored in queststrg
-	questResponse := core.Question{
-		Problem: actualResp.Data.Problem,
-		Choices: actualResp.Data.Choices,
+	question := core.Question{
+		Problem: respBody.Data.Problem,
+		Choices: respBody.Data.Choices,
 	}
 	questInQuestions := func(questResponse core.Question, questions []core.Question) bool {
 		for i := range questions {
@@ -318,7 +312,7 @@ func TestServeNewQuestionValid(t *testing.T) {
 		}
 		return false
 	}
-	assert.True(t, questInQuestions(questResponse, questions))
+	assert.True(t, questInQuestions(question, questions))
 }
 
 type newGameResp struct {
