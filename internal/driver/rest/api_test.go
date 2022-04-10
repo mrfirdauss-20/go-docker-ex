@@ -106,6 +106,43 @@ func TestNewAPI(t *testing.T) {
 	}
 }
 
+func TestServeNewGameInvalidAPIKey(t *testing.T) {
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+
+	// create request
+	reqBody := newGameReqBody{}
+	reqBodyJson, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/games/", strings.NewReader(string(reqBodyJson)))
+	req.Header.Set("X-API-Key", "example API key")
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveNewGame handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build expected response body
+	expectedResp := respBody{
+		OK:         false,
+		StatusCode: http.StatusUnauthorized,
+		Err:        "ERR_INVALID_API_KEY",
+		Message:    "invalid api key",
+	}
+	// build actual response body
+	actualResp := respBody{}
+	err = json.NewDecoder(resp.Body).Decode(&actualResp)
+	require.NoError(t, err)
+	// verify response body
+	assert.Equal(t, expectedResp.StatusCode, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, expectedResp.OK, actualResp.OK, "mismatch response body ok")
+	assert.Equal(t, expectedResp.Err, actualResp.Err, "mismatch response body error type")
+	assert.Equal(t, expectedResp.Message, actualResp.Message, "mismatch response body error message")
+}
+
 func TestServeNewGameInvalid(t *testing.T) {
 	// initialize new API
 	api, err := newNewAPI()
@@ -288,6 +325,42 @@ func TestServeNewQuestionInvalid(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, resp.StatusCode, "mismatch response code")
 	assert.Equal(t, false, respBody.OK, "mismatch response body ok")
 	assert.Equal(t, "ERR_INVALID_SCENARIO", respBody.Err, "mismatch response body error type")
+	assert.Equal(t, "invalid scenario for the action", respBody.Message, "mismatch response body error message")
+}
+
+func TestServeSubmitAnswerInvalidAPIKey(t *testing.T) {
+	// initialize game
+	game := core.Game{}
+	// initialize new API
+	api, err := newNewAPI()
+	require.NoError(t, err)
+	// store game to service
+	err = api.service.(*mockService).gameStorage.PutGame(context.Background(), game)
+	require.NoError(t, err)
+
+	// create request
+	reqBody := submitAnswerReqBody{}
+	reqBodyJson, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPut, "/games/"+game.GameID+"/answer", strings.NewReader(string(reqBodyJson)))
+	req.Header.Set("X-API-Key", "example API Key")
+	req.Header.Set("Content-Type", "application/json")
+	// create response recorder
+	w := httptest.NewRecorder()
+	// test the serveSubmitAnswer handler function
+	api.GetHandler().ServeHTTP(w, req)
+
+	// read the response body
+	resp := w.Result()
+	defer resp.Body.Close()
+	// build actual response body
+	var actualResp respBody
+	err = json.NewDecoder(resp.Body).Decode(&actualResp)
+	require.NoError(t, err)
+	// verify response body
+	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode, "mismatch response code")
+	assert.Equal(t, false, actualResp.OK, "mismatch response body ok")
+	assert.Equal(t, "ERR_INVALID_API_KEY", actualResp.Err, "mismatch response body error type")
+	assert.Equal(t, "invalid api key", actualResp.Message, "mismatch response body error message")
 }
 
 func TestServeSubmitAnswerCorrectAnswer(t *testing.T) {
@@ -542,6 +615,7 @@ func TestServeSubmitAnswerInvalidScenario(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, resp.StatusCode, "mismatch response code")
 	assert.Equal(t, false, respBody.OK, "mismatch response body ok")
 	assert.Equal(t, "ERR_INVALID_SCENARIO", respBody.Err, "mismatch response body error type")
+	assert.Equal(t, "invalid scenario for the action", respBody.Message, "mismatch response body error message")
 }
 
 func TestServeSubmitAnswerInvalidRequest(t *testing.T) {
