@@ -15,7 +15,7 @@ CREATE TABLE `games` (
   `scenario` varchar(20) NOT NULL,
   `score` int NOT NULL,
   `count_correct` int NOT NULL,
-  `question_id` int NOT NULL,
+  `question_id` int,
   `question_timeout` int NOT NULL
 );
 

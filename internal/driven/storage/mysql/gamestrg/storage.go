@@ -40,16 +40,18 @@ func (s *Storage) PutGame(ctx context.Context, g core.Game) error {
 		}
 		tx.Commit()
 	}()
-	// resolve question id
-	var questionID int
-	query := `SELECT id FROM questions WHERE problem = ?`
-	err = s.sqlClient.GetContext(ctx, &questionID, query, g.CurrentQuestion.Problem)
-	if err != nil {
-		return fmt.Errorf("unable to resolve question id due: %w", err)
+	// resolve question id if question is provided
+	var questionID *int
+	if g.CurrentQuestion != nil {
+		query := `SELECT id FROM questions WHERE problem = ?`
+		err = tx.GetContext(ctx, &questionID, query, g.CurrentQuestion.Problem)
+		if err != nil {
+			return fmt.Errorf("unable to resolve question id due: %w", err)
+		}
 	}
 	// put game in database
 	gr := newGameRow(g, questionID)
-	query = `
+	query := `
 		REPLACE INTO games (
 			id, player_name, scenario, score, 
 			count_correct, question_id, question_timeout
@@ -59,7 +61,7 @@ func (s *Storage) PutGame(ctx context.Context, g core.Game) error {
 			:count_correct, :question_id, :question_timeout
 		)
 	`
-	_, err = s.sqlClient.NamedExecContext(ctx, query, gr)
+	_, err = tx.NamedExecContext(ctx, query, gr)
 	if err != nil {
 		return fmt.Errorf("unable to execute query to put game due: %w", err)
 	}

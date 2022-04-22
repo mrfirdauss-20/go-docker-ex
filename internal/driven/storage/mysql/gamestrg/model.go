@@ -13,20 +13,24 @@ type gameRow struct {
 	Scenario        string `db:"scenario"`
 	Score           int    `db:"score"`
 	CountCorrect    int    `db:"count_correct"`
-	QuestionID      int    `db:"question_id"`
+	QuestionID      *int   `db:"question_id"`
 	QuestionTimeout int    `db:"question_timeout"`
 }
 
-func newGameRow(g core.Game, questionID int) gameRow {
-	return gameRow{
-		ID:              g.GameID,
-		PlayerName:      g.PlayerName,
-		Scenario:        g.Scenario,
-		Score:           g.Score,
-		CountCorrect:    g.CountCorrect,
-		QuestionID:      questionID,
-		QuestionTimeout: g.CurrentQuestion.Timeout,
+func newGameRow(g core.Game, questionID *int) gameRow {
+	gRow := gameRow{
+		ID:           g.GameID,
+		PlayerName:   g.PlayerName,
+		Scenario:     g.Scenario,
+		Score:        g.Score,
+		CountCorrect: g.CountCorrect,
+		QuestionID:   questionID,
 	}
+	// it is possible for the game to not have current active question
+	if g.CurrentQuestion != nil {
+		gRow.QuestionTimeout = g.CurrentQuestion.Timeout
+	}
+	return gRow
 }
 
 type gameCompleteRow struct {
