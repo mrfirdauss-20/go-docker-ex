@@ -49,6 +49,23 @@ func InsertQuestions(sqlClient *sqlx.DB, questions []core.Question) error {
 	return nil
 }
 
+func InsertQuestion(sqlClient *sqlx.DB, question core.Question) (int, error) {
+	query := `
+		INSERT INTO questions (problem, correct_index, answers) VALUES (
+			:problem, :correct_index, :answers
+		)
+	`
+	result, err := sqlClient.NamedExec(query, newQuestionRow(question))
+	if err != nil {
+		return 0, fmt.Errorf("unable to execute query due: %w", err)
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("unable to get question id due: %w", err)
+	}
+	return int(id), nil
+}
+
 type questionRow struct {
 	Problem      string         `db:"problem"`
 	CorrectIndex int            `db:"correct_index"`
