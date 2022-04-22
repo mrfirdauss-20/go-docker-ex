@@ -73,11 +73,12 @@ func (s *Storage) GetGame(ctx context.Context, gameID string) (*core.Game, error
 	var gRow gameCompleteRow
 	query := `
 		SELECT 
-			games.id,
+			games.id as id,
 			games.player_name,
 			games.scenario, 
 			games.score,
 			games.count_correct,
+			questions.id as question_id,
 			questions.problem,
 			questions.correct_index,
 			questions.answers,

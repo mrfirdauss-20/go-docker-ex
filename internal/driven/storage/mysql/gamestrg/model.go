@@ -39,7 +39,7 @@ type gameCompleteRow struct {
 	Scenario        string         `db:"scenario"`
 	Score           int            `db:"score"`
 	CountCorrect    int            `db:"count_correct"`
-	QuestionID      int            `db:"question_id"`
+	QuestionID      *int           `db:"question_id"`
 	Problem         *string        `db:"problem"`
 	CorrectIndex    *int           `db:"correct_index"`
 	Answers         types.JSONText `db:"answers"`
@@ -54,7 +54,7 @@ func (gRow gameCompleteRow) toGame() (*core.Game, error) {
 		Score:        gRow.Score,
 		CountCorrect: gRow.CountCorrect,
 	}
-	if gRow.QuestionID > 0 {
+	if gRow.QuestionID != nil {
 		var choices []string
 		err := gRow.Answers.Unmarshal(&choices)
 		if err != nil {
