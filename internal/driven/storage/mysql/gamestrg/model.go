@@ -39,32 +39,35 @@ type gameCompleteRow struct {
 	Scenario        string         `db:"scenario"`
 	Score           int            `db:"score"`
 	CountCorrect    int            `db:"count_correct"`
-	Problem         string         `db:"problem"`
-	CorrectIndex    int            `db:"correct_index"`
+	QuestionID      int            `db:"question_id"`
+	Problem         *string        `db:"problem"`
+	CorrectIndex    *int           `db:"correct_index"`
 	Answers         types.JSONText `db:"answers"`
 	QuestionTimeout int            `db:"question_timeout"`
 }
 
 func (gRow gameCompleteRow) toGame() (*core.Game, error) {
-	var choices []string
-	err := gRow.Answers.Unmarshal(&choices)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse question due: %w", err)
-	}
 	g := &core.Game{
 		GameID:       gRow.ID,
 		PlayerName:   gRow.PlayerName,
 		Scenario:     gRow.Scenario,
 		Score:        gRow.Score,
 		CountCorrect: gRow.CountCorrect,
-		CurrentQuestion: &core.TimedQuestion{
+	}
+	if gRow.QuestionID > 0 {
+		var choices []string
+		err := gRow.Answers.Unmarshal(&choices)
+		if err != nil {
+			return nil, fmt.Errorf("unable to parse question due: %w", err)
+		}
+		g.CurrentQuestion = &core.TimedQuestion{
 			Question: core.Question{
-				Problem:      gRow.Problem,
+				Problem:      *gRow.Problem,
 				Choices:      choices,
-				CorrectIndex: gRow.CorrectIndex,
+				CorrectIndex: *gRow.CorrectIndex,
 			},
 			Timeout: gRow.QuestionTimeout,
-		},
+		}
 	}
 	return g, nil
 }

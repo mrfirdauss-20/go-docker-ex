@@ -83,7 +83,7 @@ func (s *Storage) GetGame(ctx context.Context, gameID string) (*core.Game, error
 			questions.answers,
 			games.question_timeout 
 		FROM 
-			games JOIN questions ON questions.id = games.question_id
+			games LEFT JOIN questions ON questions.id = games.question_id
 		WHERE games.id = ?
 	`
 	err := s.sqlClient.GetContext(ctx, &gRow, query, gameID)
