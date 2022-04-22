@@ -6,7 +6,6 @@ RUN go mod download
 
 COPY ./cmd ./cmd
 COPY ./internal ./internal
-COPY ./deploy ./deploy
 
 WORKDIR /go/src/github.com/ghazlabs/hex-mathrush/cmd/mem_server
 RUN go build -o server
@@ -14,8 +13,8 @@ RUN go build -o server
 FROM alpine:3.15
 RUN apk add ca-certificates tzdata
 COPY --from=build /go/src/github.com/ghazlabs/hex-mathrush/cmd/mem_server/server .
-COPY --from=build /go/src/github.com/ghazlabs/hex-mathrush/deploy/mem_server/questions.json .
-COPY --from=build /go/src/github.com/ghazlabs/hex-mathrush/cmd/mem_server/web ./web
+COPY ./build/package/mem_server/questions.json .
+COPY ./build/package/shared/web ./web
 
 EXPOSE 9190
 
