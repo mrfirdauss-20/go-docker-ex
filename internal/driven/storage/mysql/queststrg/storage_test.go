@@ -49,7 +49,7 @@ func TestGetRandomQuestion(t *testing.T) {
 }
 
 func resetQuestionTable(sqlClient *sqlx.DB) error {
-	query := `TRUNCATE TABLE questions`
+	query := `SET FOREIGN_KEY_CHECKS=0; TRUNCATE TABLE questions;`
 	_, err := sqlClient.Exec(query)
 	if err != nil {
 		return fmt.Errorf("unable to execute query due: %w", err)

@@ -1,0 +1,25 @@
+version: '2.4'
+services:
+  mysql:
+    image: mysql:5.7
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+    logging:
+      driver: none
+    environment: 
+      - MYSQL_ROOT_PASSWORD=test1234
+    ports: 
+      - 3314:3306
+    volumes: 
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  integration_test:
+    build:
+      context: ../../
+      dockerfile: ./build/package/integration_test/Dockerfile
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SQL_TEST_DSN=root:test1234@tcp(mysql:3306)/hex_math?timeout=5s&multiStatements=true
+      - CGO_ENABLED=0
+    command: "go test ./... -count=1"

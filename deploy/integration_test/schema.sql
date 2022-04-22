@@ -1,0 +1,22 @@
+CREATE DATABASE hex_math;
+USE hex_math;
+
+CREATE TABLE `questions` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `problem` varchar(255) NOT NULL,
+  `correct_index` int NOT NULL,
+  `answers` json NOT NULL,
+  UNIQUE KEY `problem` (`problem`)
+);
+
+CREATE TABLE `games` (
+  `id` varchar(36) PRIMARY KEY,
+  `player_name` TEXT NOT NULL,
+  `scenario` varchar(20) NOT NULL,
+  `score` int NOT NULL,
+  `count_correct` int NOT NULL,
+  `question_id` int,
+  `question_timeout` int NOT NULL
+);
+
+ALTER TABLE `games` ADD FOREIGN KEY (`question_id`) REFERENCES `questions` (`id`);
