@@ -15,7 +15,7 @@ func TestGetRandomQuestion(t *testing.T) {
 	sqlClient, err := testutils.InitSQLClient()
 	require.NoError(t, err)
 	// reset question table for clean slate
-	err = testutils.ResetQuestionTable(sqlClient)
+	err = testutils.ResetTables(sqlClient)
 	require.NoError(t, err)
 	// insert several questions
 	questions := []core.Question{

@@ -18,8 +18,13 @@ func InitSQLClient() (*sqlx.DB, error) {
 	return sqlx.Connect("mysql", os.Getenv(envKeySQLTestDSN))
 }
 
-func ResetQuestionTable(sqlClient *sqlx.DB) error {
-	query := `SET FOREIGN_KEY_CHECKS=0; TRUNCATE TABLE questions;`
+func ResetTables(sqlClient *sqlx.DB) error {
+	query := `
+		SET FOREIGN_KEY_CHECKS=0; 
+		TRUNCATE TABLE questions; 
+		TRUNCATE TABLE games; 
+		SET FOREIGN_KEY_CHECKS=1;
+	`
 	_, err := sqlClient.Exec(query)
 	if err != nil {
 		return fmt.Errorf("unable to execute query due: %w", err)
