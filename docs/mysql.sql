@@ -3,13 +3,14 @@ USE hex_math;
 
 CREATE TABLE `questions` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
-  `problem` text NOT NULL,
+  `problem` varchar(255) NOT NULL,
   `correct_index` int NOT NULL,
-  `answers` json NOT NULL
+  `answers` json NOT NULL,
+  UNIQUE KEY `problem` (`problem`)
 );
 
 CREATE TABLE `games` (
-  `id` varchar(36)  PRIMARY KEY,
+  `id` varchar(36) PRIMARY KEY,
   `player_name` TEXT NOT NULL,
   `scenario` varchar(20) NOT NULL,
   `score` int NOT NULL,
