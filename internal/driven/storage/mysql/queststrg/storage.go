@@ -2,6 +2,9 @@ package queststrg
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/ghazlabs/hex-mathrush/internal/core"
 	"github.com/jmoiron/sqlx"
@@ -26,6 +29,28 @@ func New(cfg Config) (*Storage, error) {
 }
 
 func (s *Storage) GetRandomQuestion(ctx context.Context) (*core.Question, error) {
-	// TODO
-	return nil, nil
+	// fetch data from database
+	var rows []questionRow
+	query := `SELECT * FROM questions`
+	err := s.sqlClient.SelectContext(ctx, &rows, query)
+	if err != nil {
+		return nil, fmt.Errorf("unable to execute query due: %w", err)
+	}
+	if len(rows) == 0 {
+		return nil, nil
+	}
+	// parse rows into questions
+	var questions []core.Question
+	for _, row := range rows {
+		q, err := row.toQuestion()
+		if err != nil {
+			continue
+		}
+		questions = append(questions, *q)
+	}
+	// select random question
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	idx := r.Intn(len(questions))
+
+	return &questions[idx], nil
 }
