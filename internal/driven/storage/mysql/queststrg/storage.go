@@ -31,7 +31,7 @@ func New(cfg Config) (*Storage, error) {
 func (s *Storage) GetRandomQuestion(ctx context.Context) (*core.Question, error) {
 	// fetch data from database
 	var rows []questionRow
-	query := `SELECT * FROM questions`
+	query := `SELECT problem, correct_index, answers FROM questions`
 	err := s.sqlClient.SelectContext(ctx, &rows, query)
 	if err != nil {
 		return nil, fmt.Errorf("unable to execute query due: %w", err)
