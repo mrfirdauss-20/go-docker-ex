@@ -2,8 +2,9 @@ package queststrg
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/ghazlabs/hex-mathrush/internal/core"
@@ -16,15 +17,78 @@ type Storage struct {
 }
 
 type Config struct {
-	redisClient *redis.Client `validate:"nonnil"`
+	RedisClient *redis.Client `validate:"nonnil"`
 }
+
+var questList []core.Question
 
 func New(cfg Config) (*Storage, error) {
 	err := validator.Validate(cfg)
 	if err != nil {
 		return nil, err
 	}
-	s := &Storage{redisClient: cfg.redisClient}
+	s := &Storage{redisClient: cfg.RedisClient}
+	//insert qurestion berupa list of Question struct
+	questList = []core.Question{
+		{
+			Problem:      "1 + 2",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 3,
+		},
+		{
+			Problem:      "1 + 1",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 2,
+		},
+		{
+			Problem:      "2 + 1",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 3,
+		},
+		{
+			Problem:      "3 - 2",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 1,
+		},
+		{
+			Problem:      "2 - 1",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 1,
+		},
+		{
+			Problem:      "2 + 2 - 1",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 3,
+		},
+		{
+			Problem:      "1 + 1 + 1",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 3,
+		},
+		{
+			Problem:      "3 - 1",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 2,
+		},
+		{
+			Problem:      "2 + 1 - 2",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 1,
+		},
+		{
+			Problem:      "1 + 1 - 1",
+			Choices:      []string{"1", "2", "3"},
+			CorrectIndex: 1,
+		},
+	}
+	str, err := json.Marshal(questList)
+	if err != nil {
+		log.Fatalf("unable to marshaling intial question: %v", err)
+	}
+	err = s.redisClient.Set(context.Background(), "questions", string(str), 0).Err()
+	if err != nil {
+		log.Fatalf("unable to set initial question: %v", err)
+	}
 	return s, nil
 }
 
@@ -32,33 +96,18 @@ func (s *Storage) GetRandomQuestion(ctx context.Context) (*core.Question, error)
 
 	//res, err := rdb.Do(ctx, "set", "key", "value").Result()
 	//val2, err := rdb.Get(ctx, "key2").Result()
-	var questions []core.Question
-	i := 0
-	atr, err := s.redisClient.Get(ctx, "questions:0").Result()
+	var qList []core.Question
+	val, err := s.redisClient.Get(ctx, "questions").Result()
 	if err != nil {
-		panic(err)
+		log.Fatalf("unable to get question: %v", err)
 	}
-	for atr != "" {
-		CorIdx, err := s.redisClient.Get(ctx, "questions:"+strconv.Itoa(i)+":correct_index").Result()
-		Ans, err := s.redisClient.LRange(ctx, "questions:"+strconv.Itoa(i)+":answers", 0, -1).Result()
-		corId, err := strconv.Atoi(CorIdx)
-		q := core.Question{
-			Problem:      atr,
-			CorrectIndex: corId,
-			Choices:      Ans,
-		}
-		questions = append(questions, q)
-		i++
-		atr, err = s.redisClient.Get(ctx, "questions:"+strconv.Itoa(i)).Result()
-		if err != nil {
-			continue
-		}
+	err = json.Unmarshal([]byte(val), &qList)
+	if err != nil {
+		log.Fatalf("unable to unmarshal question: %v", err)
 	}
 
-	if len(questions) == 0 {
-		return nil, nil
-	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	idx := r.Intn(len(questions))
-	return &questions[idx], nil
+	r := rand.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	idx := r.Intn(len(qList))
+
+	return &qList[idx], nil
 }
