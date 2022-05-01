@@ -2,7 +2,8 @@ package gamestrg
 
 import (
 	"context"
-	"strconv"
+	"encoding/json"
+	"fmt"
 
 	"github.com/ghazlabs/hex-mathrush/internal/core"
 	"github.com/go-redis/redis/v8"
@@ -14,7 +15,7 @@ type Storage struct {
 }
 
 type Config struct {
-	redisClient *redis.Client `validate:"nonnil"`
+	RedisClient *redis.Client `validate:"nonnil"`
 }
 
 func New(cfg Config) (*Storage, error) {
@@ -22,51 +23,75 @@ func New(cfg Config) (*Storage, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := &Storage{redisClient: cfg.redisClient}
+	s := &Storage{redisClient: cfg.RedisClient}
 	return s, nil
 }
 
 func (s *Storage) PutGame(ctx context.Context, g core.Game) error {
-	var cursor uint64
-	var n int
-	var keys []string
-	var err error
-	keys, cursor, err = s.redisClient.Scan(ctx, cursor, "game:*", 10).Result()
-	n = len(keys)
-	err = s.redisClient.Set(ctx, "game:"+strconv.Itoa(n), g.GameID, 0).Err()
+	var quest []core.Question
+	//get questions
+	str, err := s.redisClient.Get(ctx, "questions").Result()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get games: %w", err)
 	}
-	err = s.redisClient.Set(ctx, "game:"+strconv.Itoa(n)+":player_name", g.PlayerName, 0).Err()
+	err = json.Unmarshal([]byte(str), &quest)
 	if err != nil {
-		return err
-	}
-	err = s.redisClient.Set(ctx, "game:"+strconv.Itoa(n)+":scenario", g.Scenario, 0).Err()
-	if err != nil {
-		return err
-	}
-	err = s.redisClient.Set(ctx, "game:"+strconv.Itoa(n)+":score", g.Score, 0).Err()
-	if err != nil {
-		return err
-	}
-	err = s.redisClient.Set(ctx, "game:"+strconv.Itoa(n)+":count_correct", g.CountCorrect, 0).Err()
-	if err != nil {
-		return err
+		return fmt.Errorf("Unable to unmarshaling games: %w", err)
 	}
 
-	var qs []string
-	qs, cursor, err = s.redisClient.Scan(ctx, cursor, "question:*:problem", 10).Result()
+	questId := 0
+	if g.CurrentQuestion != nil {
 
-	i := 0
-	iter := ""
-	for i < len(qs) && g.CurrentQuestion.Problem != iter {
-		iter, err = s.redisClient.Get(ctx, "question:"+strconv.Itoa(i)+":problem").Result()
-		i++
+		for quest[questId].Problem != g.CurrentQuestion.Problem {
+			questId++
+		}
+		if questId >= len(quest) {
+			return fmt.Errorf("question not found")
+		}
 	}
 
-	err = s.redisClient.Set(ctx, "game:"+strconv.Itoa(n)+":question_id", i-1, 0).Err()
+	//replace in db
+	//get games from db
+	var games []core.Game
+	str, err = s.redisClient.Get(ctx, "games").Result()
 	if err != nil {
-		return err
+		return fmt.Errorf("Unable to get games: %w", err)
 	}
-	return err
+	err = json.Unmarshal([]byte(str), &games)
+	if err != nil {
+		return fmt.Errorf("Unable to unmarshal games: %w", err)
+	}
+	//replace
+	idx := 0
+	for games[idx].GameID != g.GameID {
+		idx++
+	}
+	games[idx] = g
+	bts, err := json.Marshal(games)
+	if err != nil {
+		return fmt.Errorf("unable to marshal games: %w", err)
+	}
+	err = s.redisClient.Set(ctx, "games", string(bts), 0).Err()
+	if err != nil {
+		return fmt.Errorf("unable to set games: %w", err)
+	}
+	return nil
+}
+
+func (s *Storage) GetGame(ctx context.Context, gameID string) (*core.Game, error) {
+	var games []core.Game
+	str, err := s.redisClient.Get(ctx, "games").Result()
+	if err != nil {
+		return nil, fmt.Errorf("Unable to get games: %w", err)
+	}
+	err = json.Unmarshal([]byte(str), &games)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to unmarshal games: %w", err)
+	}
+	for _, g := range games {
+		if g.GameID == gameID {
+			return &g, nil
+		}
+	}
+	return nil, fmt.Errorf("game not found")
 }
