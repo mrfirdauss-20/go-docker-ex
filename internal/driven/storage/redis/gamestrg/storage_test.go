@@ -45,7 +45,7 @@ func TestPutGameGetGame(t *testing.T) {
 			},
 		},
 		{
-			Name: "Test Nil Question",
+			Name: "Test Non-Nil Question",
 			Game: core.Game{
 				GameID:       uuid.NewString(),
 				PlayerName:   "Risqi",

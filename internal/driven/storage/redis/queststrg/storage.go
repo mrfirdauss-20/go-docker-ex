@@ -3,7 +3,7 @@ package queststrg
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -83,11 +83,11 @@ func New(cfg Config) (*Storage, error) {
 	}
 	str, err := json.Marshal(questList)
 	if err != nil {
-		log.Fatalf("unable to marshaling intial question: %v", err)
+		return nil, fmt.Errorf("unable to marshal question: %v", err)
 	}
 	err = s.redisClient.Set(context.Background(), "questions", string(str), 0).Err()
 	if err != nil {
-		log.Fatalf("unable to set initial question: %v", err)
+		return nil, fmt.Errorf("unable to set question: %v", err)
 	}
 	return s, nil
 }
@@ -99,11 +99,11 @@ func (s *Storage) GetRandomQuestion(ctx context.Context) (*core.Question, error)
 	var qList []core.Question
 	val, err := s.redisClient.Get(ctx, "questions").Result()
 	if err != nil {
-		log.Fatalf("unable to get question: %v", err)
+		return nil, fmt.Errorf("unable to get question: %v", err)
 	}
 	err = json.Unmarshal([]byte(val), &qList)
 	if err != nil {
-		log.Fatalf("unable to unmarshal question: %v", err)
+		return nil, fmt.Errorf("unablr to unmarshal questions: %v", err)
 	}
 
 	r := rand.New(rand.New(rand.NewSource(time.Now().UnixNano())))
