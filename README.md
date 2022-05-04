@@ -21,7 +21,7 @@ Here is the flowchart of the game:
 This app is powered by docker. So make sure to install it before running below command:
 
 ```bash
-> make run
+> make run-mem-server
 ```
 
 Upon success, your console should output message like following:

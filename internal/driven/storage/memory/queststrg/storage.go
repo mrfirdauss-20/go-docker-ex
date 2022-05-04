@@ -30,7 +30,7 @@ func New(cfg Config) (*Storage, error) {
 }
 
 func (s *Storage) GetRandomQuestion(ctx context.Context) (*core.Question, error) {
-	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	idx := r.Intn(len(s.questions))
 
 	return &s.questions[idx], nil

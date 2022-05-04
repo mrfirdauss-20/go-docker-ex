@@ -365,7 +365,7 @@ func newMockQuestionStorage(questions []Question) *mockQuestionStorage {
 }
 
 func (qs *mockQuestionStorage) GetRandomQuestion(ctx context.Context) (*Question, error) {
-	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	idx := r.Intn(len(qs.questions))
 
 	return &qs.questions[idx], nil
