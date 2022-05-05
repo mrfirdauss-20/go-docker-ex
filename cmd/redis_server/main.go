@@ -32,7 +32,7 @@ func main() {
 		log.Fatalf("unable to initialize auth due: %v", err)
 	}
 
-	redisClient := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	redisClient := redis.NewClient(&redis.Options{Addr: "redis:6379"})
 	if err != nil {
 		log.Fatalf("unable to initialize redis client due: %v", err)
 	}

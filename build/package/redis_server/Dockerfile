@@ -15,6 +15,6 @@ RUN apk add ca-certificates tzdata
 COPY --from=build /go/src/github.com/ghazlabs/hex-mathrush/cmd/redis_server/server .
 COPY ./build/package/shared/web ./web
 
-EXPOSE 9192
+EXPOSE 9190
 
 ENTRYPOINT [ "./server" ]
