@@ -20,82 +20,16 @@ type Config struct {
 	RedisClient *redis.Client `validate:"nonnil"`
 }
 
-var questList []core.Question
-
 func New(cfg Config) (*Storage, error) {
 	err := validator.Validate(cfg)
 	if err != nil {
 		return nil, err
 	}
 	s := &Storage{redisClient: cfg.RedisClient}
-	//insert qurestion berupa list of Question struct
-	questList = []core.Question{
-		{
-			Problem:      "1 + 2",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 3,
-		},
-		{
-			Problem:      "1 + 1",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 2,
-		},
-		{
-			Problem:      "2 + 1",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 3,
-		},
-		{
-			Problem:      "3 - 2",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 1,
-		},
-		{
-			Problem:      "2 - 1",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 1,
-		},
-		{
-			Problem:      "2 + 2 - 1",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 3,
-		},
-		{
-			Problem:      "1 + 1 + 1",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 3,
-		},
-		{
-			Problem:      "3 - 1",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 2,
-		},
-		{
-			Problem:      "2 + 1 - 2",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 1,
-		},
-		{
-			Problem:      "1 + 1 - 1",
-			Choices:      []string{"1", "2", "3"},
-			CorrectIndex: 1,
-		},
-	}
-	str, err := json.Marshal(questList)
-	if err != nil {
-		return nil, fmt.Errorf("unable to marshal question: %v", err)
-	}
-	err = s.redisClient.Set(context.Background(), "questions", string(str), 0).Err()
-	if err != nil {
-		return nil, fmt.Errorf("unable to set question: %v", err)
-	}
 	return s, nil
 }
 
 func (s *Storage) GetRandomQuestion(ctx context.Context) (*core.Question, error) {
-
-	//res, err := rdb.Do(ctx, "set", "key", "value").Result()
-	//val2, err := rdb.Get(ctx, "key2").Result()
 	var qList []core.Question
 	val, err := s.redisClient.Get(ctx, "questions").Result()
 	if err != nil {
