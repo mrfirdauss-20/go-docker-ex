@@ -14,12 +14,16 @@ services:
     image: redis:7.0.0-alpine
     healthcheck:
       test: [ "CMD", "redis-cli", "incr", "health_check_ping" ]
+    logging:
+      driver: none
   integration_test:
     build:
       context: ../../
       dockerfile: ./build/package/integration_test/Dockerfile
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       - SQL_TEST_DSN=root:test1234@tcp(mysql:3306)/hex_math?timeout=5s&multiStatements=true
