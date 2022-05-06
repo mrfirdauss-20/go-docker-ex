@@ -11,10 +11,15 @@ import (
 )
 
 func TestGetRandomQuestion(t *testing.T) {
+	// initialize redis client
 	client, err := testutils.InitRedisClient()
 	require.NoError(t, err)
+
+	// reset redis to make sure the data is clean
 	err = testutils.ResetRedis(client)
 	require.NoError(t, err)
+
+	// insert questions to redis
 	questions := []core.Question{
 		{
 			Problem:      "1 + 2",
@@ -30,10 +35,14 @@ func TestGetRandomQuestion(t *testing.T) {
 	err = testutils.InsertQuestion(client, questions)
 	require.NoError(t, err)
 
-	//get random
+	// initialize question storage
 	storage, err := queststrg.New(queststrg.Config{RedisClient: client})
 	require.NoError(t, err)
-	restQuestion, err := storage.GetRandomQuestion(context.Background())
+
+	// get random question
+	resQuestion, err := storage.GetRandomQuestion(context.Background())
 	require.NoError(t, err)
-	require.Contains(t, questions, *restQuestion)
+
+	// make sure the returned question is from the questions we have inserted
+	require.Contains(t, questions, *resQuestion)
 }

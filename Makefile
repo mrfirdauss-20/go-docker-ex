@@ -11,5 +11,5 @@ run-redis-server:
 	docker-compose -f ./deploy/redis_server/docker-compose.yml up --build
 
 test:
-	-docker-compose -f ./deploy/integration_test/docker-compose.yml down
+	-docker-compose -f ./deploy/integration_test/docker-compose.yml down --remove-orphans
 	docker-compose -f ./deploy/integration_test/docker-compose.yml up --build --exit-code-from=integration_test
