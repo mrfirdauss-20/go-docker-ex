@@ -35,5 +35,11 @@ services:
     depends_on:
       redis_seeder:
         condition: service_completed_successfully
+    environment:
+      # we set the redis endpoint through environment variable here, but why not just hardcode 
+      # the redis endpoint on code? Because the redis endpoint might change during any stage of
+      # deployment (e.g in production we will use standalone redis instance), so it always better
+      # to make the redis endpoint configurable
+      - REDIS_ENDPOINT=redis:6379
     ports:
       - 9190:9190
