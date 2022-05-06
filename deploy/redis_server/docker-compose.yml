@@ -12,6 +12,8 @@ services:
     # https://stackoverflow.com/a/70706628/7034602
     healthcheck:
       test: [ "CMD", "redis-cli", "incr", "health_check_ping" ]
+    ports:
+      - 6389:6379
   server:
     build:
       context: ../../
