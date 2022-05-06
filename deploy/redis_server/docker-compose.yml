@@ -1,19 +1,24 @@
 version: '2.4'
 services:
   redis:
-    image: redis:alpine
-    ports:
-      - "6380:6379"
-    volumes:
-      - $PWD/redis.conf:/deploy/redis_server/redis.conf
-    restart: always
-    command: redis-server
+    # always use version when selecting an image, if not docker will try to fetch
+    # the latest image which may break our application due to compatibility issue
+    # in the software we are trying to use
+    image: redis:7.0.0-alpine
+    # we define health check for redis server, this is to make our server able to run
+    # only after redis server is finished booted up, the health check method that we
+    # use is taken from here:
+    #
+    # https://stackoverflow.com/a/70706628/7034602
+    healthcheck:
+      test: [ "CMD", "redis-cli", "incr", "health_check_ping" ]
   server:
     build:
       context: ../../
       dockerfile: ./build/package/redis_server/Dockerfile
+    # we will start server only after redis instance is healthy
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - 9190:9190
-volumes:
-  redis:
-    driver: local
