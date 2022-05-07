@@ -8,10 +8,14 @@ services:
       driver: none
     environment: 
       - MYSQL_ROOT_PASSWORD=test1234
-    ports: 
-      - 3314:3306
     volumes: 
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  redis:
+    image: redis:7.0.0-alpine
+    healthcheck:
+      test: [ "CMD", "redis-cli", "incr", "health_check_ping" ]
+    logging:
+      driver: none
   integration_test:
     build:
       context: ../../
@@ -19,7 +23,10 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - SQL_TEST_DSN=root:test1234@tcp(mysql:3306)/hex_math?timeout=5s&multiStatements=true
+      - REDIS_TEST_ENDPOINT=redis:6379
       - CGO_ENABLED=0
     command: "go test ./... -count=1"

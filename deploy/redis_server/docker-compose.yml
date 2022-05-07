@@ -1,19 +1,45 @@
 version: '2.4'
 services:
   redis:
-    image: redis:alpine
+    # always use version when selecting an image, if not docker will try to fetch
+    # the latest image which may break our application due to compatibility issue
+    # in the software we are trying to use
+    image: redis:7.0.0-alpine
+    # we define health check for redis server, this is to make our server able to run
+    # only after redis server is finished booted up, the health check method that we
+    # use is taken from here:
+    #
+    # https://stackoverflow.com/a/70706628/7034602
+    healthcheck:
+      test: [ "CMD", "redis-cli", "incr", "health_check_ping" ]
     ports:
-      - "6380:6379"
+      - 6389:6379
+  # we will create data seeder for redis, notice that here we are using the same redis image
+  # as redis instance, however we override the execution command to run the seed script instead
+  # the reason why we are using the same redis image is because in the image there is redis-cli
+  # in there, redis-cli is the tool we use to set the data into redis
+  redis_seeder:
+    image: redis:7.0.0-alpine
+    # start only after redis instance is healthy
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
-      - $PWD/redis.conf:/deploy/redis_server/redis.conf
-    restart: always
-    command: redis-server
+      - ./seed_data.sh:/seed_data.sh
+    command: /seed_data.sh
   server:
     build:
       context: ../../
       dockerfile: ./build/package/redis_server/Dockerfile
+    # we will start server only after redis seeder is finished successfully
+    depends_on:
+      redis_seeder:
+        condition: service_completed_successfully
+    environment:
+      # we set the redis endpoint through environment variable here, but why not just hardcode 
+      # the redis endpoint on code? Because the redis endpoint might change during any stage of
+      # deployment (e.g in production we will use standalone redis instance), so it always better
+      # to make the redis endpoint configurable
+      - REDIS_ENDPOINT=redis:6379
     ports:
       - 9190:9190
-volumes:
-  redis:
-    driver: local

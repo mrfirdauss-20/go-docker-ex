@@ -12,23 +12,22 @@ import (
 )
 
 func TestPutGameGetGame(t *testing.T) {
+	// initialize redis client
 	redisClient, err := testutils.InitRedisClient()
 	require.NoError(t, err)
-	err = testutils.ResetRedis(redisClient)
+
+	// initialize game storage
+	gs, err := gamestrg.New(gamestrg.Config{RedisClient: redisClient})
 	require.NoError(t, err)
 
+	// define question
 	question := core.Question{
 		Problem:      "1 + 1",
 		Choices:      []string{"1", "2", "3"},
 		CorrectIndex: 2,
 	}
 
-	err = redisClient.Set(context.Background(), "question", question, 0).Err()
-	require.NoError(t, err)
-
-	gs, err := gamestrg.New(gamestrg.Config{RedisClient: redisClient})
-	require.NoError(t, err)
-
+	// define test cases
 	testCases := []struct {
 		Name string
 		Game core.Game
@@ -62,13 +61,15 @@ func TestPutGameGetGame(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
+			// put game
 			ctx := context.Background()
 			err := gs.PutGame(ctx, tc.Game)
 			require.NoError(t, err)
-
+			// get game
 			game, err := gs.GetGame(ctx, tc.Game.GameID)
 			require.NoError(t, err)
-			require.Equal(t, tc.Game, game)
+			// validate game data
+			require.Equal(t, tc.Game, *game)
 		})
 	}
 }

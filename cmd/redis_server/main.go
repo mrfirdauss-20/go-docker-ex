@@ -23,6 +23,8 @@ import (
 const (
 	listenPort = 9190
 	apiKey     = "c4211664-47dc-4887-a2fe-9e694fbaf55a"
+
+	envKeyRedisEndpoint = "REDIS_ENDPOINT"
 )
 
 func main() {
@@ -32,7 +34,7 @@ func main() {
 		log.Fatalf("unable to initialize auth due: %v", err)
 	}
 
-	redisClient := redis.NewClient(&redis.Options{Addr: "redis:6379"})
+	redisClient := redis.NewClient(&redis.Options{Addr: os.Getenv(envKeyRedisEndpoint)})
 	if err != nil {
 		log.Fatalf("unable to initialize redis client due: %v", err)
 	}

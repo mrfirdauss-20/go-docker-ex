@@ -31,11 +31,11 @@ func (s *Storage) PutGame(ctx context.Context, g core.Game) error {
 	key := fmt.Sprintf("game:%s", g.GameID)
 	str, err := json.Marshal(g)
 	if err != nil {
-		return fmt.Errorf("Unable to marshal game: %w", err)
+		return fmt.Errorf("unable to marshal game: %w", err)
 	}
 	err = s.redisClient.Set(ctx, key, string(str), 0).Err()
 	if err != nil {
-		return fmt.Errorf("Unable to put game in redis: %w", err)
+		return fmt.Errorf("unable to put game in redis: %w", err)
 	}
 	return nil
 }

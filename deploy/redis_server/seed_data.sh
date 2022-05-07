@@ -1,0 +1,4 @@
+#/bin/sh
+
+# set questions value, notice that we use "redis" as -h value, this is because we name our redis instance "redis" in docker-compose.yml
+redis-cli -h redis SET questions "[{\"problem\":\"1 + 2\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":3},{\"problem\":\"1 + 1\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":2},{\"problem\":\"2 + 1\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":3},{\"problem\":\"3 - 2\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":1},{\"problem\":\"2 - 1\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":1},{\"problem\":\"2 + 2 - 1\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":3},{\"problem\":\"1 + 1 + 1\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":3},{\"problem\":\"3 - 1\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":2},{\"problem\":\"2 + 1 - 2\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":1},{\"problem\":\"1 + 1 - 1\",\"choices\":[\"1\",\"2\",\"3\"],\"correct_idx\":1}]"
